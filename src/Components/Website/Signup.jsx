@@ -1,11 +1,15 @@
+import { useState } from "react";
+
 export default function Signup() {
+  
   function handleSubmit(e) {
     e.preventDefault();
-    const fd = new FormData(e.target);
-    const data = Object.fromEntries(fd.entries());
-    console.log(data);
+    // const fd = new FormData(e.target);
+    // const data = Object.fromEntries(fd.entries());
+    console.log(user);
     e.target.reset();
   }
+ 
 
   return (
     <form onSubmit={handleSubmit}>
@@ -14,13 +18,13 @@ export default function Signup() {
 
       <div className="control">
         <label htmlFor="email">Email</label>
-        <input id="email" type="email" name="email" />
+        <input id="email" type="email" name="email"/>
       </div>
 
       <div className="control-row">
         <div className="control">
           <label htmlFor="password">Password</label>
-          <input id="password" type="password" name="password" />
+          <input id="password" type="password" name="password"onChange={handleUser} />
         </div>
 
         <div className="control">
@@ -38,12 +42,12 @@ export default function Signup() {
       <div className="control-row">
         <div className="control">
           <label htmlFor="first-name">First Name</label>
-          <input type="text" id="first-name" name="first-name" />
+          <input type="text" id="first-name" name="first_name"onChange={handleUser} />
         </div>
 
         <div className="control">
           <label htmlFor="last-name">Last Name</label>
-          <input type="text" id="last-name" name="last-name" />
+          <input type="text" id="last-name" name="last_name" onChange={handleUser}/>
         </div>
       </div>
 

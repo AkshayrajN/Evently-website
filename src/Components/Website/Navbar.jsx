@@ -2,26 +2,92 @@ import React, { useRef, useState } from "react";
 
 const Navbar = () => {
   const ref = useRef();
-
+  const [signup, setsignup] = useState(false);
+  const [user,setUser]=useState({})
+  const [userLogin,setUserLogin]=useState({})
   function handleClick() {
     ref.current.showModal();
   }
-
+  const submitLogin=(e)=>{
+    e.preventDefault();
+    console.log(userLogin)
+    handleLoginSubmit();
+  }
   function handleClickClose() {
     ref.current.hideModal();
   }
 
   function onSubmit() {
-    window.open("https://www.google.com/");
+    // window.open("https://www.google.com/");
   }
 
-  function handleSubmit(e) {
+  async function handleSubmit(e) {
     e.preventDefault();
-    const fd = new FormData(e.target);
-    const data = Object.fromEntries(fd.entries());
+    console.log(user)
+    try{
+   const response=await fetch("http://localhost:443/backend/api/testresponse.php",{
+      method:"POST",
+      //  mode:"no-cors",
+      body:JSON.stringify(user),
+      headers:{
+        'Content-Type':'application/json'
+      }
+    })
+    // if (!response.ok) {
+    //   throw new Error(`HTTP error! Status: ${response.status}`);
+    // }
+
+    const data = await response.json();
+    // setStatusCode(200); 
+    // Store the response data in state or do something else with it
     console.log(data);
-    e.target.reset();
+    console.log(data.Status);
+    if(data.Status===401){
+      console.log("first")
+      alert("USER ALREADY exsits");
+      return;
+    }
+  } catch (error) {
+    console.error('Error:', error);
   }
+  }
+
+// login authentication section-----
+
+async function handleLoginSubmit() {
+  // e.preventDefault();
+  console.log(userLogin)
+  try{
+ const response=await fetch("http://localhost:443/backend/api/formlogin.php",{
+    method:"POST",
+    //  mode:"no-cors",
+    body:JSON.stringify(userLogin),
+    headers:{
+      'Content-Type':'application/json'
+    }
+  })
+  // if (!response.ok) {
+  //   throw new Error(`HTTP error! Status: ${response.status}`);
+  // }
+
+  const data = await response.json();
+  // setStatusCode(200); 
+  // Store the response data in state or do something else with it
+  console.log(data);
+  console.log(data.Status);
+  if(data.Status===403){
+    console.log("first")
+    alert("wrong username or password");
+    return;
+  }
+} catch (error) {
+  console.error('Error:', error);
+}
+}
+
+
+
+
 
   const [modalMarkup, setModalMarkup] = useState(
     <div>
@@ -32,27 +98,41 @@ const Navbar = () => {
     </div>
   );
 
-  const [signup, setsignup] = useState(true);
-
+ const handleLogin=(e)=>{
+  console.log("First");
+  setUserLogin((prev=>({
+    ...prev,
+    [e.target.name]:e.target.value
+  })))
+ }
+  const handleUser=(e)=>{
+    console.log("First");
+    setUser((prev=>({
+      ...prev,
+      [e.target.name]:e.target.value
+    })))
+  }
   function handleModal(login) {
     setsignup(login);
-    const markup = login ? (
+    const markup = !signup ? (
       <div>
         <h3 className="my-3">Username</h3>
-        <input type="text" className="mb-4 focus:bg-stone-300" />
+        <input type="text" className="mb-4 focus:bg-stone-300 " name="username" onChange={handleLogin}/>
         <h3 className="my-3">Password</h3>
-        <input type="password" className=" focus:bg-stone-300" />
+        <input type="password" className=" focus:bg-stone-300" name="password" onChange={handleLogin} />
       </div>
     ) : (
       <div>
         <h3 className="my-3">First Name</h3>
-        <input type="text" className="mb-4 focus:bg-stone-300" />
+        <input type="text" className="mb-4 focus:bg-stone-300" name="first_name"   onChange={handleUser} />
         <h3 className="my-3">Last Name</h3>
-        <input type="text" className="mb-4 focus:bg-stone-300" />
+        <input type="text" className="mb-4 focus:bg-stone-300" name="last_name"  onChange={handleUser} />
+        <h3 className="my-3">Email</h3>
+        <input type="text" className="mb-4 focus:bg-stone-300" name="email"  onChange={handleUser} />
         <h3 className="my-3">Username</h3>
-        <input type="text" className="mb-4 focus:bg-stone-300" />
+        <input type="text" className="mb-4 focus:bg-stone-300"  name="username" onChange={handleUser} />
         <h3 className="my-3">Password</h3>
-        <input type="password" className=" focus:bg-stone-300" />
+        <input type="password" className=" focus:bg-stone-300" name="password"  onChange={handleUser} />
       </div>
     );
     setModalMarkup(markup);
@@ -67,13 +147,19 @@ const Navbar = () => {
         <div className="flex items-center justify-around bg-red-500 w-full rounded-b-lg">
           <button
             className={`w-[50%] ${!signup && "bg-black"}`}
-            onClick={() => handleModal(true)}
+            onClick={() => {
+              handleModal(true);
+              setsignup(false)
+            }}
           >
             Log-in
           </button>
           <button
             className={`w-[50%] ${signup && "bg-black"}`}
-            onClick={() => handleModal(false)}
+            onClick={() => {
+              handleModal(false);
+              setsignup(true);
+            }}
           >
             Sign Up
           </button>
@@ -82,7 +168,7 @@ const Navbar = () => {
           <form onSubmit={handleSubmit}>
             {modalMarkup}
             <button
-              onClick={onSubmit}
+              onClick={signup? handleSubmit:submitLogin}
               type="submit"
               className=" p-2 border-2 mt-4 rounded-md bg-stone-800 text-stone-300 hover:bg-stone-700 hover:text-stone-100"
             >
